@@ -114,7 +114,7 @@ function closestColour(rgb, palette) {
  *  the Alpha channel doesn't represent transparency but encodes the light/dark variation of a
  *  colour when multiple colours can be produced from the same source material.
  * @param {ImageData} pixels - Image data containing dimensions and RGBA pixel array
- * @param {'none'|'weak-bayer'|'strong-bayer'|'floyd-steinberg'|'atkinson'} dither - Algorithm to apply 
+ * @param {'none'|'weak-bayer'|'strong-bayer'|'floyd-steinberg'|'atkinson'|'ign'} dither - Algorithm to apply 
  * @param {Array<Array<Number>>|undefined} shademap - Output into which to write variation data for 3D maps
  * @returns Modified ImageData pixels with the replaced colours.
  */
@@ -125,6 +125,14 @@ function convertPalette(palette, pixels, dither, shademap) {
     [ 3/16-.5, 11/16-.5,  1/16-.5,  9/16-.5],
     [15/16-.5,  7/16-.5, 13/16-.5,  5/16-.5]
   ];
+
+  // IGN noise function - returns value between -0.5 and 0.5
+  function ignNoise(x, y) {
+    const seed = 1337; // Consistent seed for reproducible results
+    const n = Math.sin(x * 12.9898 + y * 78.233 + seed) * 43758.5453123;
+    return (n - Math.floor(n) - 0.5);
+  }
+
   //Quantize the image
   for (z=0; z<pixels.height; z++) {
     for (x=0; x<pixels.width; x++) {
@@ -135,6 +143,10 @@ function convertPalette(palette, pixels, dither, shademap) {
         let s = 5 * 255/Math.max(10, palette.length) * bayer4x4[z%4][x%4];
         if (dither === 'strong-bayer') s *= 3;
         const mrgb = [irgb[0]+s, irgb[1]+s, irgb[2]+s];
+        cc = closestColour(mrgb, palette);
+      } else if (dither === 'ign') {
+        const noise = ignNoise(x, z) * 255/Math.max(10, palette.length) * 8;
+        const mrgb = [irgb[0]+noise, irgb[1]+noise, irgb[2]+noise];
         cc = closestColour(mrgb, palette);
       } else {
         cc = closestColour(irgb, palette);
