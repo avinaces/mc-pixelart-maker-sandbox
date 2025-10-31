@@ -205,7 +205,7 @@ const EJStemplates = {
         <li><span>No Dither for cartoons with solid colours (no gradients)</span></li>
         <li><span>Bayer in case of few palette colours</span></li>
         <li><span>FS or Atk for detailed photographs</span></li>
-        <li><span>IGN for smooth transitions with reduced artifacts</span></li></ul>"  
+        <li><span>IGN for clean, patterned gradients and textures.</span></li></ul>"  
       class="text-info" data-delay="{&quot;show&quot;:100, &quot;hide&quot;:2000}"><%-SVGicons.questionmark%></a>
     </div>
   </div>
